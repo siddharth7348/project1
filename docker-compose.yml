@@ -1,0 +1,37 @@
+version: "3.9"
+
+
+services:
+  
+  redis:
+    image: redis:7.0.11-alpine
+  django:
+    build:
+      context: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/usr/src/app/
+    environment:
+      - SECRET_KEY=bw$ympsc8*%wbf&jcovz1lnwjwc0ws23zvj_jdi1i2h1
+      - DEBUG=1
+      - ALLOWED_HOSTS=127.0.0.1, localhost
+    depends_on:
+      - redis
+  
+  celery:
+    build:
+      context: ./backend
+    command: celery --app=backend worker -l INFO
+    volumes:
+      - ./backend:/usr/src/app/
+    environment:
+      - SECRET_KEY=bw$ympsc8*%wbf&jcovz1lnwjwc0ws23zvj_jdi1i2h1
+      - DEBUG=1
+      - ALLOWED_HOSTS=127.0.0.1, localhost
+    depends_on:
+      - django
+
+
+     
